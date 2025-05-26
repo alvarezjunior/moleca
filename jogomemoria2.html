@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória Personalizado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ff69b4, #ffd700);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(8, 120px);
+            gap: 10px;
+        }
+
+        .card {
+            width: 120px;
+            height: 82px;
+            background-color: #ffffff;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            user-select: none;
+            position: relative;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff69b4;
+            border-radius: 8px;
+            transition: opacity 0.3s;
+        }
+
+        .card.flip::after, .card.matched::after {
+            opacity: 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                grid-template-columns: repeat(4, 120px);
+                gap: 8px;
+            }
+
+            .card {
+                width: 120px;
+                height: 82px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const images = [
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/520-59-20499-15745.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5469-121-26528-15760.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5548-101-22669-15745.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5346-102-27595-15745.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5503-100-9569-15745.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5490-121-30111-86785.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5816-101-29464-101840.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5489-115-29142-100868.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5824-104-7800-15745.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5503-105-18462-15745.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5490-112-29147-102675.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5824-101-7815-52987.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5494-119-19548-35312.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5817-102-15197-96829.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5504-109-9569-15758.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5605-472-27758-35404.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5489-115-26466-94822.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5504-109-9569-35312.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5791-100-7800-16072.jpg',
+        'https://s3-sa-east-1.amazonaws.com/imagens.catalogobeirario.com.br/pequenas/5436-402-7800-16072.jpg'
+    ];
+
+    const cards = [...images, ...images];
+    cards.sort(() => Math.random() - 0.5);
+
+    const container = document.querySelector('.container');
+    let firstCard, secondCard;
+    let lockBoard = false;
+
+    cards.forEach(image => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.style.backgroundImage = `url(${image})`;
+        card.addEventListener('click', flipCard);
+        container.appendChild(card);
+    });
+
+    function flipCard() {
+        if (lockBoard || this.classList.contains('flip')) return;
+
+        this.classList.add('flip');
+
+        if (!firstCard) {
+            firstCard = this;
+            return;
+        }
+
+        secondCard = this;
+        lockBoard = true;
+
+        checkForMatch();
+    }
+
+    function checkForMatch() {
+        const isMatch = firstCard.style.backgroundImage === secondCard.style.backgroundImage;
+
+        isMatch ? disableCards() : unflipCards();
+    }
+
+    function disableCards() {
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+
+        resetBoard();
+    }
+
+    function unflipCards() {
+        setTimeout(() => {
+            firstCard.classList.remove('flip');
+            secondCard.classList.remove('flip');
+
+            resetBoard();
+        }, 1000);
+    }
+
+    function resetBoard() {
+        [firstCard, secondCard, lockBoard] = [null, null, false];
+    }
+});
+</script>
+
+</body>
+</html>
